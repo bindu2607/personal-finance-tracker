@@ -1,18 +1,14 @@
+// ────────── script.js ──────────
+
 // Table scroll logic
 const tablePart = document.querySelector(".table-part");
 const transactionTable = document.getElementById("transaction-table");
 
 function checkTableScroll() {
-    const rowCount = transactionTable.rows.length - 1; // Exclude header
-    const maxRowCount = 10;
-    if (rowCount > maxRowCount) {
-        tablePart.classList.add("scrollable");
-    } else {
-        tablePart.classList.remove("scrollable");
-    }
+    const rowCount = transactionTable.rows.length - 1;
+    tablePart.classList.toggle("scrollable", rowCount > 10);
 }
-const observer = new MutationObserver(checkTableScroll);
-observer.observe(transactionTable, { childList: true, subtree: true });
+new MutationObserver(checkTableScroll).observe(transactionTable, { childList: true, subtree: true });
 
 // Data structures
 let transactions = [];
@@ -20,43 +16,62 @@ let editedTransaction = null;
 let budgets = {};
 let goals = [];
 let bills = [];
-let receipts = {}; // {primeId: receiptURL}
+let receipts = {}; // { primeId: receiptURL }
 let notifications = [];
+
+// Persistence helpers
+function saveToLocalStorage() {
+    const data = { transactions, budgets, goals, bills, receipts };
+    localStorage.setItem("financeData", JSON.stringify(data));
+}
+
+function loadFromLocalStorage() {
+    const stored = localStorage.getItem("financeData");
+    if (!stored) return;
+    const data = JSON.parse(stored);
+    transactions = data.transactions || [];
+    budgets = data.budgets || {};
+    goals = data.goals || [];
+    bills = data.bills || [];
+    receipts = data.receipts || {};
+    // Refresh UI
+    updateBalance();
+    updateTransactionTable();
+    updateBudgetsList();
+    updateGoalsList();
+    updateBillsList();
+    updateReports();
+    triggerNotifications();
+}
 
 // Add Transaction
 function addTransaction() {
-    const descriptionInput = document.getElementById("description");
-    const amountInput = document.getElementById("amount");
+    const descInput = document.getElementById("description");
+    const amtInput = document.getElementById("amount");
     const typeInput = document.getElementById("type");
     const dateInput = document.getElementById("date");
     const categoryInput = document.getElementById("category");
     const receiptInput = document.getElementById("receipt");
 
-    const description = descriptionInput.value;
-    const amount = parseFloat(amountInput.value);
+    const description = descInput.value.trim();
+    const amount = parseFloat(amtInput.value);
     const type = typeInput.value;
     const chosenDate = new Date(dateInput.value);
-    const category = categoryInput ? categoryInput.value : "";
-    const receiptFile = receiptInput && receiptInput.files[0] ? receiptInput.files[0] : null;
-    let receiptUrl = "";
+    const category = categoryInput ? categoryInput.value.trim() : "";
+    const receiptFile = receiptInput ? .files[0] || null;
 
-    // Validate
-    if (
-        description.trim() === "" ||
-        isNaN(amount) ||
-        isNaN(chosenDate) ||
-        !type ||
-        !category
-    ) {
+    // Validate fields
+    if (!description || isNaN(amount) || isNaN(chosenDate.getTime()) || !type || !category) {
         return;
     }
 
-    // Receipt preview
+    // Handle receipt file
+    let receiptUrl = "";
     if (receiptFile) {
         receiptUrl = URL.createObjectURL(receiptFile);
+        receipts[chosenDate.getTime()] = receiptUrl;
     }
 
-    // Transaction object
     const transaction = {
         primeId: chosenDate.getTime(),
         description,
@@ -66,15 +81,16 @@ function addTransaction() {
         receiptUrl
     };
     transactions.push(transaction);
-    if (receiptUrl) receipts[transaction.primeId] = receiptUrl;
 
-    // Clear fields
-    descriptionInput.value = "";
-    amountInput.value = "";
+    // Clear inputs
+    descInput.value = "";
+    amtInput.value = "";
     dateInput.value = "";
-    if (categoryInput) categoryInput.value = "";
+    categoryInput.value = "";
     if (receiptInput) receiptInput.value = "";
 
+    // Persist & refresh
+    saveToLocalStorage();
     updateBalance();
     updateTransactionTable();
     updateReports();
@@ -83,26 +99,25 @@ function addTransaction() {
 
 // Delete Transaction
 function deleteTransaction(primeId) {
-    const index = transactions.findIndex((t) => t.primeId === primeId);
-    if (index > -1) {
-        transactions.splice(index, 1);
-        updateBalance();
-        updateTransactionTable();
-        updateReports();
-        triggerNotifications();
-    }
+    transactions = transactions.filter(t => t.primeId !== primeId);
+    delete receipts[primeId];
+    saveToLocalStorage();
+    updateBalance();
+    updateTransactionTable();
+    updateReports();
+    triggerNotifications();
 }
 
 // Edit Transaction
 function editTransaction(primeId) {
-    const transaction = transactions.find((t) => t.primeId === primeId);
-    if (!transaction) return;
-    document.getElementById("description").value = transaction.description;
-    document.getElementById("amount").value = transaction.amount;
-    document.getElementById("type").value = transaction.type;
-    document.getElementById("category").value = transaction.category || "";
-    document.getElementById("date").value = formatDateInput(new Date(transaction.primeId));
-    editedTransaction = transaction;
+    const t = transactions.find(t => t.primeId === primeId);
+    if (!t) return;
+    document.getElementById("description").value = t.description;
+    document.getElementById("amount").value = t.amount;
+    document.getElementById("type").value = t.type;
+    document.getElementById("category").value = t.category;
+    document.getElementById("date").value = new Date(primeId).toISOString().slice(0, 10);
+    editedTransaction = t;
     document.getElementById("add-transaction-btn").style.display = "none";
     document.getElementById("save-transaction-btn").style.display = "inline-block";
 }
@@ -110,52 +125,48 @@ function editTransaction(primeId) {
 // Save Transaction
 function saveTransaction() {
     if (!editedTransaction) return;
-    const descriptionInput = document.getElementById("description");
-    const amountInput = document.getElementById("amount");
+    const descInput = document.getElementById("description");
+    const amtInput = document.getElementById("amount");
     const typeInput = document.getElementById("type");
     const dateInput = document.getElementById("date");
     const categoryInput = document.getElementById("category");
     const receiptInput = document.getElementById("receipt");
 
-    const description = descriptionInput.value;
-    const amount = parseFloat(amountInput.value);
-    const type = typeInput.value;
+    const description = descInput.value.trim();
+    const amount = parseFloat(amtInput.value);
     const chosenDate = new Date(dateInput.value);
-    const category = categoryInput ? categoryInput.value : "";
-    const receiptFile = receiptInput && receiptInput.files[0] ? receiptInput.files[0] : null;
-    let receiptUrl = editedTransaction.receiptUrl;
+    const category = categoryInput.value.trim();
+    const receiptFile = receiptInput ? .files[0] || null;
 
-    if (
-        description.trim() === "" ||
-        isNaN(amount) ||
-        isNaN(chosenDate) ||
-        !type ||
-        !category
-    ) {
+    if (!description || isNaN(amount) || isNaN(chosenDate.getTime()) || !category) {
         return;
     }
 
+    // Possibly update receipt
+    let receiptUrl = editedTransaction.receiptUrl;
     if (receiptFile) {
         receiptUrl = URL.createObjectURL(receiptFile);
+        receipts[chosenDate.getTime()] = receiptUrl;
     }
 
     editedTransaction.description = description;
     editedTransaction.amount = amount;
-    editedTransaction.type = type;
+    editedTransaction.type = typeInput.value;
     editedTransaction.primeId = chosenDate.getTime();
     editedTransaction.category = category;
     editedTransaction.receiptUrl = receiptUrl;
 
-    descriptionInput.value = "";
-    amountInput.value = "";
+    // Clear & reset buttons
+    descInput.value = "";
+    amtInput.value = "";
     dateInput.value = "";
-    if (categoryInput) categoryInput.value = "";
+    categoryInput.value = "";
     if (receiptInput) receiptInput.value = "";
-
     editedTransaction = null;
     document.getElementById("add-transaction-btn").style.display = "inline-block";
     document.getElementById("save-transaction-btn").style.display = "none";
 
+    saveToLocalStorage();
     updateBalance();
     updateTransactionTable();
     updateReports();
@@ -165,327 +176,225 @@ function saveTransaction() {
 // Balance
 function updateBalance() {
     const balanceElement = document.getElementById("balance");
-    let balance = 0.0;
-    transactions.forEach((transaction) => {
-        if (transaction.type === "income") {
-            balance += transaction.amount;
-        } else if (transaction.type === "expense") {
-            balance -= transaction.amount;
-        }
-    });
-    const currencySelect = document.getElementById("currency");
-    const currencyCode = currencySelect ? currencySelect.value : "INR";
-    const formattedBalance = formatCurrency(balance, currencyCode);
-    balanceElement.textContent = formattedBalance;
-    if (balance < 0) {
-        balanceElement.classList.remove("positive-balance");
-        balanceElement.classList.add("negative-balance");
-    } else {
-        balanceElement.classList.remove("negative-balance");
-        balanceElement.classList.add("positive-balance");
-    }
+    let balance = transactions.reduce((sum, t) =>
+        sum + (t.type === "income" ? t.amount : -t.amount), 0);
+    const currencyCode = document.getElementById("currency") ? .value || "INR";
+    balanceElement.textContent = formatCurrency(balance, currencyCode);
 
-    // Update goal progress
-    goals.forEach((g) => {
-        g.saved = Math.min(balance, g.amt);
-    });
+    // Update goals and budgets progress
+    goals.forEach(g => g.saved = Math.min(balance, g.amt));
     updateGoalsList();
-
-    // Update budgets
     updateBudgetsList();
 }
 
 // Format currency
-function formatCurrency(amount, currencyCode) {
-    const currencySymbols = { USD: "$", EUR: "€", INR: "₹" };
-    const decimalSeparators = { USD: ".", EUR: ",", INR: "." };
-    const symbol = currencySymbols[currencyCode] || "";
-    const decimalSeparator = decimalSeparators[currencyCode] || ".";
-    return symbol + amount.toFixed(2).replace(".", decimalSeparator);
+function formatCurrency(amount, code) {
+    const symbols = { USD: "$", EUR: "€", INR: "₹" };
+    const sep = { USD: ".", EUR: ",", INR: "." };
+    return (symbols[code] || "") +
+        amount.toFixed(2).replace(".", sep[code] || ".");
 }
 
-// Format date for display
+// Format date display
 function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-}
-
-// Format date for input[type="date"]
-function formatDateInput(date) {
-    return date.toISOString().slice(0, 10);
+    const d = new Date(date);
+    return `${String(d.getDate()).padStart(2, "0")}/` +
+        `${String(d.getMonth() + 1).padStart(2, "0")}/` +
+        d.getFullYear();
 }
 
 // Update Transaction Table
 function updateTransactionTable() {
-    const transactionTable = document.getElementById("transaction-table");
-    while (transactionTable.rows.length > 1) {
-        transactionTable.deleteRow(1);
-    }
-    transactions.forEach((transaction) => {
-        const newRow = transactionTable.insertRow();
-        const dateCell = newRow.insertCell();
-        dateCell.textContent = formatDate(new Date(transaction.primeId));
-        const descriptionCell = newRow.insertCell();
-        descriptionCell.textContent = transaction.description;
-        const amountCell = newRow.insertCell();
-        const currencySelect = document.getElementById("currency");
-        const currencyCode = currencySelect ? currencySelect.value : "INR";
-        amountCell.textContent = formatCurrency(transaction.amount, currencyCode);
-        const typeCell = newRow.insertCell();
-        typeCell.textContent = transaction.type;
-        const categoryCell = newRow.insertCell();
-        categoryCell.textContent = transaction.category || "";
-        const receiptCell = newRow.insertCell();
-        receiptCell.innerHTML = transaction.receiptUrl ?
-            `<a href="${transaction.receiptUrl}" target="_blank">View</a>` :
+    const tbl = document.getElementById("transaction-table");
+    while (tbl.rows.length > 1) tbl.deleteRow(1);
+    transactions.forEach(t => {
+        const r = tbl.insertRow();
+        r.insertCell().textContent = formatDate(t.primeId);
+        r.insertCell().textContent = t.description;
+        r.insertCell().textContent = formatCurrency(t.amount, document.getElementById("currency") ? .value);
+        r.insertCell().textContent = t.type;
+        r.insertCell().textContent = t.category;
+        const recCell = r.insertCell();
+        recCell.innerHTML = t.receiptUrl ?
+            `<a href="${t.receiptUrl}" target="_blank">View</a>` :
             "";
-        const actionCell = newRow.insertCell();
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.classList.add("edit-button");
-        editButton.addEventListener("click", () =>
-            editTransaction(transaction.primeId)
-        );
-        actionCell.appendChild(editButton);
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.classList.add("delete-button");
-        deleteButton.addEventListener("click", () =>
-            deleteTransaction(transaction.primeId)
-        );
-        actionCell.appendChild(deleteButton);
+        const actionCell = r.insertCell();
+        actionCell.innerHTML = `
+      <button onclick="editTransaction(${t.primeId})">Edit</button>
+      <button onclick="deleteTransaction(${t.primeId})">Delete</button>
+    `;
     });
     checkTableScroll();
 }
 
 // Budgets
-document.getElementById("budget-form").onsubmit = function(e) {
+document.getElementById("budget-form").addEventListener("submit", e => {
     e.preventDefault();
-    const cat = document.getElementById("budget-category").value;
+    const cat = document.getElementById("budget-category").value.trim();
     const amt = parseFloat(document.getElementById("budget-amount").value);
     if (!cat || isNaN(amt)) return;
     budgets[cat] = amt;
+    saveToLocalStorage();
     updateBudgetsList();
     triggerNotifications();
-    this.reset();
-};
+    e.target.reset();
+});
 
 function updateBudgetsList() {
     const div = document.getElementById("budgets-list");
-    let html = "";
-    Object.keys(budgets).forEach((cat) => {
-        const spent = transactions
-            .filter((t) => t.category === cat && t.type === "expense")
-            .reduce((sum, t) => sum + t.amount, 0);
-        html += `<div>${cat}: <b>₹${spent.toFixed(2)}</b> / ₹${budgets[cat].toFixed(
-      2
-    )} <progress value="${spent}" max="${budgets[cat]}"></progress></div>`;
-    });
-    div.innerHTML = html;
+    div.innerHTML = Object.entries(budgets)
+        .map(([cat, amt]) => {
+            const spent = transactions
+                .filter(t => t.category === cat && t.type === "expense")
+                .reduce((s, t) => s + t.amount, 0);
+            return `<div>${cat}: <b>${formatCurrency(spent, "INR")}</b> / ${
+        formatCurrency(amt, "INR")} <progress value="${spent}" max="${amt}"></progress></div>`;
+        }).join("");
 }
 
-// Financial Goals
-document.getElementById("goal-form").onsubmit = function(e) {
+// Goals
+document.getElementById("goal-form").addEventListener("submit", e => {
     e.preventDefault();
-    const name = document.getElementById("goal-name").value;
+    const name = document.getElementById("goal-name").value.trim();
     const amt = parseFloat(document.getElementById("goal-amount").value);
     if (!name || isNaN(amt)) return;
     goals.push({ name, amt, saved: 0 });
+    saveToLocalStorage();
     updateGoalsList();
-    this.reset();
-};
+    e.target.reset();
+});
 
 function updateGoalsList() {
     const div = document.getElementById("goals-list");
-    div.innerHTML = goals
-        .map(
-            (g) =>
-            `<div>${g.name}: <progress value="${g.saved}" max="${g.amt}"></progress> ₹${g.saved.toFixed(
-          2
-        )}/${g.amt.toFixed(2)}</div>`
-        )
-        .join("");
+    div.innerHTML = goals.map(g =>
+        `<div>${g.name}: <progress value="${g.saved}" max="${g.amt}"></progress> ${
+      formatCurrency(g.saved, "INR")}/${formatCurrency(g.amt, "INR")}</div>`
+    ).join("");
 }
 
-// Bill Reminders
-document.getElementById("bill-form").onsubmit = function(e) {
+// Bills
+document.getElementById("bill-form").addEventListener("submit", e => {
     e.preventDefault();
-    const name = document.getElementById("bill-name").value;
+    const name = document.getElementById("bill-name").value.trim();
     const date = document.getElementById("bill-date").value;
     if (!name || !date) return;
     bills.push({ name, date });
+    saveToLocalStorage();
     updateBillsList();
-    this.reset();
-};
+    triggerNotifications();
+    e.target.reset();
+});
 
 function updateBillsList() {
     const div = document.getElementById("bills-list");
-    div.innerHTML = bills
-        .map((b) => `<div>${b.name} - Due: ${b.date}</div>`)
-        .join("");
+    div.innerHTML = bills.map(b =>
+        `<div>${b.name} - Due: ${b.date}</div>`
+    ).join("");
 }
 
-// Visual Reports (Chart.js)
+// Reports (Chart.js)
 function updateReports() {
-    const ctx = document.getElementById("summary-chart").getContext("2d");
-    const catTotals = {};
-    transactions.forEach((t) => {
-        if (!catTotals[t.category]) catTotals[t.category] = 0;
-        if (t.type === "expense") catTotals[t.category] += t.amount;
+    const canvas = document.getElementById("summary-chart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const totals = {};
+    transactions.forEach(t => {
+        if (t.type === "expense") {
+            totals[t.category] = (totals[t.category] || 0) + t.amount;
+        }
     });
-    if (window.summaryChart) window.summaryChart.destroy();
+
+    if (window.summaryChart) {
+        window.summaryChart.destroy();
+    }
+
     window.summaryChart = new Chart(ctx, {
         type: "pie",
         data: {
-            labels: Object.keys(catTotals),
-            datasets: [{
-                data: Object.values(catTotals),
-                backgroundColor: [
-                    "#ff6384",
-                    "#36a2eb",
-                    "#cc65fe",
-                    "#ffce56",
-                    "#18ad1d",
-                    "#f44336",
-                ],
-            }, ],
+            labels: Object.keys(totals),
+            datasets: [{ data: Object.values(totals) }]
         },
-        options: { responsive: true },
+        options: { responsive: true }
     });
-    // Monthly summary
-    const months = {};
-    transactions.forEach((t) => {
-        const m = new Date(t.primeId).toISOString().slice(0, 7);
-        if (!months[m]) months[m] = { income: 0, expense: 0 };
-        if (t.type === "income") months[m].income += t.amount;
-        else months[m].expense += t.amount;
-    });
-    let html =
-        "<table><tr><th>Month</th><th>Income</th><th>Expense</th></tr>";
-    Object.keys(months).forEach((m) => {
-        html += `<tr><td>${m}</td><td>₹${months[m].income.toFixed(
-      2
-    )}</td><td>₹${months[m].expense.toFixed(2)}</td></tr>`;
-    });
-    html += "</table>";
-    document.getElementById("monthly-summary").innerHTML = html;
 }
 
 // Notifications
 function triggerNotifications() {
     notifications = [];
-    // Budget alerts
-    Object.keys(budgets).forEach((cat) => {
+    for (let cat in budgets) {
         const spent = transactions
-            .filter((t) => t.category === cat && t.type === "expense")
-            .reduce((sum, t) => sum + t.amount, 0);
+            .filter(t => t.category === cat && t.type === "expense")
+            .reduce((s, t) => s + t.amount, 0);
         if (spent > budgets[cat]) notifications.push(`Overspent in ${cat}!`);
-    });
-    // Bill reminders
+    }
     const today = new Date().toISOString().slice(0, 10);
-    bills.forEach((b) => {
+    bills.forEach(b => {
         if (b.date === today) notifications.push(`Bill due today: ${b.name}`);
     });
-    showNotification(notifications.join(" | "));
-}
-
-function showNotification(msg) {
     const bar = document.getElementById("notification-bar");
     if (bar) {
-        if (msg) {
-            bar.textContent = msg;
-            bar.style.display = "block";
-        } else {
-            bar.style.display = "none";
-        }
+        bar.textContent = notifications.join(" | ");
+        bar.style.display = notifications.length ? "block" : "none";
     }
 }
 
 // Backup/Restore
-window.handleBackup = function() {
-    const data = { transactions, budgets, goals, bills, receipts };
-    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "finance-backup.json";
-    link.click();
-};
-window.handleRestore = function() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json";
-    input.onchange = function(e) {
-        const file = e.target.files[0];
+function handleBackup() {
+    const blob = new Blob([JSON.stringify({ transactions, budgets, goals, bills, receipts })], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "finance-backup.json";
+    a.click();
+}
+
+function handleRestore() {
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = ".json";
+    inp.onchange = e => {
         const reader = new FileReader();
-        reader.onload = function() {
-            const data = JSON.parse(reader.result);
-            transactions = data.transactions || [];
-            budgets = data.budgets || {};
-            goals = data.goals || [];
-            bills = data.bills || [];
-            receipts = data.receipts || {};
-            updateTransactionTable();
-            updateBudgetsList();
-            updateGoalsList();
-            updateBillsList();
-            updateBalance();
-            updateReports();
-            triggerNotifications();
+        reader.onload = () => {
+            localStorage.setItem("financeData", reader.result);
+            loadFromLocalStorage();
         };
-        reader.readAsText(file);
+        reader.readAsText(e.target.files[0]);
     };
-    input.click();
-};
-
-// Export
-function handleDownload() {
-    const exportFormat = prompt("Select export format: PDF or CSV").toLowerCase();
-    if (exportFormat === "pdf") {
-        exportToPDF();
-    } else if (exportFormat === "csv") {
-        exportToCSV();
-    } else {
-        alert('Invalid export format. Please enter either "PDF" or "CSV".');
-    }
+    inp.click();
 }
 
-function exportToPDF() {
-    alert(
-        "PDF export not implemented in this demo. Use a library like pdfMake for real export."
-    );
-}
-
+// Export CSV/PDF
 function exportToCSV() {
-    const csvContent =
-        "Date,Description,Amount,Type,Category\n" +
-        transactions
-        .map((t) => {
-            const date = formatDate(new Date(t.primeId));
-            return `${date},${t.description},${t.amount},${t.type},${t.category}`;
-        })
-        .join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "transactions.csv";
-    link.click();
+    if (!transactions.length) { alert("No data to export."); return; }
+    const rows = [
+        ["Date", "Description", "Amount", "Type", "Category"],
+        ...transactions.map(t => [
+            new Date(t.primeId).toISOString().slice(0, 10),
+            t.description,
+            t.amount.toFixed(2),
+            t.type,
+            t.category
+        ])
+    ];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "transactions.csv";
+    a.click();
 }
 
-// Event listeners
-document
-    .getElementById("add-transaction-btn")
-    .addEventListener("click", addTransaction);
-document
-    .getElementById("save-transaction-btn")
-    .addEventListener("click", saveTransaction);
+function handleDownload() {
+    const fmt = prompt("Export as CSV or PDF?").toLowerCase();
+    if (fmt === "csv") exportToCSV();
+    else if (fmt === "pdf") alert("Use pdfMake or similar library for PDF export.");
+    else alert("Invalid format.");
+}
 
-// Initial load
-updateBalance();
-updateTransactionTable();
-updateBudgetsList();
-updateGoalsList();
-updateBillsList();
-updateReports();
-triggerNotifications();
+// Init on load
+window.addEventListener("DOMContentLoaded", () => {
+    loadFromLocalStorage();
+    document.getElementById("add-transaction-btn").addEventListener("click", addTransaction);
+    document.getElementById("save-transaction-btn").addEventListener("click", saveTransaction);
+    document.getElementById("export-btn").addEventListener("click", handleDownload);
+});
