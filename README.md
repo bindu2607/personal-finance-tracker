@@ -28,9 +28,6 @@ A clean, modern, and intuitive web application that empowers users to efficientl
 - ✅ **Set Financial Goals**  
   Define your saving goals and monitor progress with visual indicators.
 
-- ✅ **Interactive Reports**  
-  Pie charts, bar graphs, and summaries that offer insights into spending patterns.
-
 - ✅ **Responsive UI**  
   Optimized for all devices with smooth interactions and accessibility in mind.
 
@@ -45,22 +42,14 @@ A clean, modern, and intuitive web application that empowers users to efficientl
 
 ---
 
-
-## 🚀 Getting Started
-
- 1. Clone the Repository
-
-git clone https://github.com/bindu2607/personal-finance-tracker.git
-cd personal-finance-tracker
-
-
-## 2. Open the App
-
+2. Open the App
 Simply open index.html in your preferred browser.
 
-No server or backend setup required for demo use.
+⚠️ No server or backend setup required for demo use.
 
-## 🛠️ Technologies Utilized
+---
+
+## 🧰 Technologies Utilized
 
 HTML5 — Structured with semantic, accessible markup for enhanced SEO and readability.
 
@@ -74,8 +63,9 @@ Feather Icons & Font Awesome — Lightweight and visually appealing icon sets fo
 
 Responsive Design — Mobile-first, fully responsive layout using media queries and flexible grid structures.
 
+---
 
-##🤝 Contributing
+## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions, bug reports, or feature requests, please:
 
@@ -83,21 +73,29 @@ Open an issue
 
 Or submit a pull request
 
-Please make sure your code follows the existing style guidelines and is well-documented.
+Please ensure your code follows the existing style guidelines and is well-documented.
 
-##📄 License
+---
+
+## 📄 License
 
 This project is licensed under the MIT License.
 
 See the LICENSE file for full details.
 
-##🙏 Acknowledgements
+
+---
+
+## 🙏 Acknowledgements
 
 Thank you to all the open-source contributors and resources that made this project possible.
 
-##📬 Contact
+---
 
-For questions or support please contact
-email: himabindumarpini92@gmail.com 
+## 📬 Contact
 
-Or open an issue on GitHub.
+For questions or support, please contact:
+
+Email: himabindumarpini92@gmail.com
+GitHub Issues: Open here
+
