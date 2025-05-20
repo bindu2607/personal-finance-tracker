@@ -10,33 +10,24 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <title>Finance Tracker - A Personal Finance App</title>
 </head>
 
 <body>
-    <!-- <header class="header-part"> -->
     <nav>
         <div class="navbar">
-            <a href="#" class="logo"><i class="fas fa-chart-line"></i> Finance Tracker</a
-        >
-        <ul class="nav-links">
-          <li><a href="#">Home</a></li>
-            <li><a href="#tracker">Use Tracker</a></li>
-            <li><a href="#how-it-works">How it works</a></li>
-            <li><a href="./support.html">Support</a></li>
+            <a href="#" class="logo"><i class="fas fa-chart-line"></i> Finance Tracker</a>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#tracker">Use Tracker</a></li>
+                <li><a href="#how-it-works">How it works</a></li>
+                <li><a href="./support.html">Support</a></li>
             </ul>
             <div class="buttons">
-                <a href="./login.html" class="btn-head"><i class="fas fa-sign-in-alt"></i> Log In</a
-          >
-          <a href="./sign-up.html" class="btn-head"
-            ><i class="fas fa-user-plus"></i> Sign Up</a>
-
+                <a href="./login.html" class="btn-head"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                <a href="./sign-up.html" class="btn-head"><i class="fas fa-user-plus"></i> Sign Up</a>
             </div>
-            <!-- <div class="menu-toggle">
-            <i class="fas fa-bars"></i>
-        </div> -->
         </div>
     </nav>
 
@@ -49,7 +40,7 @@
                 <p class="under-welcome-p">
                     Track your income and expenses effortlessly. Manage your budget, set financial goals, and make smarter decisions for more secure future.
                 </p>
-                <button class="under-welcome-btn">Sign Up Now</button>
+                <button class="under-welcome-btn" onclick="window.location.href='#tracker'">Sign Up Now</button>
             </div>
             <div class="under-welcome-image">
                 <img src="./assets/makeme.png" alt="Power Finance" />
@@ -58,11 +49,7 @@
     </section>
     <br />
     <div class="arrow">
-        <a href="#tracker " class="scroll-link">
-            <!-- <span></span> -->
-            <!-- <span></span> -->
-            <span></span>
-        </a>
+        <a href="#tracker" class="scroll-link"><span></span><span></span><span></span></a>
     </div>
 
     <section class="main-content" id="tracker">
@@ -74,20 +61,20 @@
 
         <div class="tracker-part">
             <div class="tracker-balance">
-                Current Balance: <span id="balance" class="current-balance"></span>
+                Current Balance: <span id="balance" class="current-balance">0</span>
             </div>
 
             <div class="currency-filter">
                 <div class="filter-left">
                     <label for="currency">Select Currency:</label>
                     <select id="currency" onchange="updateBalance()">
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="INR" selected>INR</option>
-            </select>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="INR" selected>INR</option>
+                    </select>
                 </div>
                 <div class="filter-right">
-                    <label for="text" class="date-box">Choose Date:</label>
+                    <label for="date" class="date-box">Choose Date:</label>
                     <input type="date" id="date" placeholder="Date" />
                 </div>
             </div>
@@ -96,21 +83,25 @@
                 <input type="text" id="description" placeholder="Description" />
                 <input type="number" id="amount" placeholder="Amount" />
                 <select id="type">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
                 <button onclick="addTransaction()">Add Transaction</button>
                 <button onclick="handleDownload()">Export</button>
             </div>
+
             <div class="table-part" id="table-part">
                 <table id="transaction-table">
-                    <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>Action</th>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-tbody"></tbody>
                 </table>
             </div>
         </div>
@@ -128,7 +119,6 @@
                     Experience the power of
                     <span class="text-lightBlue">Personal Finance Tracker</span>
                 </h5>
-                <!-- <div class="under-h1"></div> -->
                 <ul class="ul-items">
                     <li class="check-list-items">
                         <i data-feather="check" class="feather icon-check"></i>
@@ -155,15 +145,14 @@
                         <span>Secure data protection</span>
                     </li>
                 </ul>
-                <button class="sign-up-button-btn">Sign Up Now</button>
+                <button class="sign-up-button-btn" onclick="window.location.href='#tracker'">Sign Up Now</button>
             </div>
             <div class="right-working-image">
-                <!-- <div class="under-welcome-image"> -->
                 <img src="./assets/how-it-works.png" target="_self" alt="Power Finance" />
-                <!-- </div> -->
             </div>
         </div>
     </section>
+
     <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
@@ -178,10 +167,176 @@
             </div>
         </div>
     </footer>
+
     <script>
         feather.replace();
+
+        // Array to store transactions
+        let transactions = [];
+
+        // Load transactions from localStorage on page load
+        window.onload = function() {
+            if (localStorage.getItem('transactions')) {
+                transactions = JSON.parse(localStorage.getItem('transactions'));
+            }
+            renderTransactions();
+            updateBalance();
+        };
+
+        // Add new transaction
+        function addTransaction() {
+            const descriptionInput = document.getElementById('description');
+            const amountInput = document.getElementById('amount');
+            const typeSelect = document.getElementById('type');
+            const dateInput = document.getElementById('date');
+
+            const description = descriptionInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+            const type = typeSelect.value;
+            const date = dateInput.value || new Date().toISOString().split('T')[0]; // Use selected date or today
+
+            if (!description || isNaN(amount) || amount <= 0) {
+                alert('Please enter valid description and positive amount.');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                description,
+                amount,
+                type,
+                date
+            };
+
+            transactions.push(transaction);
+            saveTransactions();
+            renderTransactions();
+            updateBalance();
+
+            // Clear inputs
+            descriptionInput.value = '';
+            amountInput.value = '';
+            dateInput.value = '';
+            typeSelect.value = 'income';
+        }
+
+        // Save transactions to localStorage
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Render transactions in table
+        function renderTransactions() {
+            const tbody = document.getElementById('transaction-tbody');
+            tbody.innerHTML = '';
+
+            if (transactions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No transactions yet.</td></tr>`;
+                return;
+            }
+
+            transactions.forEach(tx => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${tx.date}</td>
+                    <td>${tx.description}</td>
+                    <td>${tx.amount.toFixed(2)}</td>
+                    <td>${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</td>
+                    <td><button onclick="deleteTransaction(${tx.id})" style="color: red;">Delete</button></td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Delete transaction by id
+        function deleteTransaction(id) {
+            if (!confirm('Are you sure you want to delete this transaction?')) return;
+            transactions = transactions.filter(tx => tx.id !== id);
+            saveTransactions();
+            renderTransactions();
+            updateBalance();
+        }
+
+        // Update balance display according to currency and transactions
+        function updateBalance() {
+            const balanceEl = document.getElementById('balance');
+            const currency = document.getElementById('currency').value;
+
+            let balance = 0;
+            transactions.forEach(tx => {
+                if (tx.type === 'income') {
+                    balance += tx.amount;
+                } else {
+                    balance -= tx.amount;
+                }
+            });
+
+            let symbol = '';
+            switch (currency) {
+                case 'USD':
+                    symbol = '$';
+                    break;
+                case 'EUR':
+                    symbol = '€';
+                    break;
+                case 'INR':
+                    symbol = '₹';
+                    break;
+                default:
+                    symbol = '';
+            }
+
+            balanceEl.textContent = symbol + balance.toFixed(2);
+        }
+
+        // Export transactions as PDF (uses pdfmake)
+        function handleDownload() {
+            if (transactions.length === 0) {
+                alert('No transactions to export!');
+                return;
+            }
+
+            const currency = document.getElementById('currency').value;
+            const symbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '₹';
+
+            const body = [
+                ['Date', 'Description', 'Amount', 'Type']
+            ];
+
+            transactions.forEach(tx => {
+                body.push([
+                    tx.date,
+                    tx.description,
+                    symbol + tx.amount.toFixed(2),
+                    tx.type.charAt(0).toUpperCase() + tx.type.slice(1)
+                ]);
+            });
+
+            const docDefinition = {
+                content: [{
+                    text: 'Finance Tracker Report',
+                    style: 'header'
+                }, {
+                    table: {
+                        headerRows: 1,
+                        widths: ['*', '*', '*', '*'],
+                        body: body
+                    }
+                }],
+                styles: {
+                    header: {
+                        fontSize: 18,
+                        bold: true,
+                        marginBottom: 15
+                    }
+                }
+            };
+
+            pdfMake.createPdf(docDefinition).download('finance_report.pdf');
+        }
     </script>
-    <script src="script.js"></script>
     <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
 </body>
 
