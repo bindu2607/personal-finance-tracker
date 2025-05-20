@@ -79,7 +79,7 @@ Please ensure your code follows the existing style guidelines and is well-docume
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://github.com/bindu2607/personal-finance-tracker/blob/main/LICENSE).
 
 See the LICENSE file for full details.
 
