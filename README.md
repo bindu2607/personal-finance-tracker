@@ -14,7 +14,7 @@ A clean, modern, and intuitive web application that empowers users to efficientl
 
 👉 [View Deployed App](#)  
 
-https://personal-finance-tracker-git-main-marpini-himabindus-projects.vercel.app/
+https://personal-finance-tracking-marpini-himabindus-projects.vercel.app/
 
 ---
 
