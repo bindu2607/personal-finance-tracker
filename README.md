@@ -1,105 +1,41 @@
 # Personal Finance Tracker
 
-A modern web app to track income, expenses, budgets, and financial goals with interactive charts and a clean, responsive UI. Easily manage your personal finances and gain insights into your spending.
+Personal Finance Tracker is a web application that helps you manage your finances effectively. With this application, you can track your income and expenses, set budgets, and gain better control over your financial health. 
 
----
-
-## 💸 Overview
-
-A clean, modern, and intuitive web application that empowers users to efficiently manage their income, expenses, budgets, and financial goals — all in one place. Whether you're saving for a big purchase or trying to keep monthly spending in check, this app helps you stay on top of your finances with ease.
-
----
-
-## 🚀 Live Demo
-
-👉 [View Deployed App](#)  
-*Replace with your actual deployment link if hosted.*
-
----
-
-## 📌 Table of Contents
-
-- [Features](#-features)  
-- [Getting Started](#-getting-started)  
-- [Technologies Used](#-technologies-utilized)  
-- [Project Structure](#-project-structure)  
-- [Contributing](#-contributing)  
-- [License](#-license)  
-- [Acknowledgements](#-acknowledgements)  
-- [Contact](#-contact)  
-
----
-
-## 🌟 Features
-
-- ✅ **Track Transactions**  
-  Add, update, and remove income or expenses with descriptions, categories, and timestamps.
-
-- ✅ **Budgeting Tools**  
-  Create category-wise monthly budgets and track how close you are to the limit.
-
-- ✅ **Set Financial Goals**  
-  Define your saving goals and monitor progress with visual indicators.
-
-- ✅ **Interactive Reports**  
-  Pie charts, bar graphs, and summaries that offer insights into spending patterns.
-
-- ✅ **Responsive UI**  
-  Optimized for all devices with smooth interactions and accessibility in mind.
-
-- ✅ **Secure Auth**  
-  Login and sign-up functionality with form validation (frontend only).
-
-- ✅ **Currency Settings**  
-  Choose your preferred currency symbol for a personalized experience.
-
-- ✅ **Built-in Support**  
-  Submit questions or issues directly via the in-app support page.
-
----
+<img width="960" alt="image" src="https://github.com/neeraj542/Personal-Finance-Tracker/assets/114648043/83946993-1e1b-41a8-ad3e-d0598bb9deb7">
 
 
+## Features
 
-## 🛠️ Technologies Utilized
+- Track your income and expenses effortlessly
+- Set financial goals and monitor your progress
+- Categorize transactions for better organization
+- Generate insightful reports and visualizations
+- Customizable currency settings
+- Secure data protection
 
+## Technologies Used
 
-HTML5 — Structured with semantic, accessible markup for enhanced SEO and readability.
+- HTML
+- CSS
+- JavaScript
 
-CSS3 — Modern styling with custom components and Bootstrap-inspired utility classes, including advanced UI effects like Glassmorphism.
+## Contributing
 
-JavaScript (ES6+) — Efficient DOM manipulation, event handling, and client-side data operations using modern syntax and features.
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
 
-LocalStorage — Enables persistent browser-based data storage for a seamless user experience.
+## License
 
-Feather Icons & Font Awesome — Lightweight and visually appealing icon sets for intuitive UI elements.
-
-Responsive Design — Mobile-first, fully responsive layout using media queries and flexible grid structures.
-
-
-## 🤝  Contributing
-
-Contributions are welcome! If you have suggestions, bug reports, or feature requests, please:
-
-Open an issue
-
-Or submit a pull request
-
-## 📄 License
-
-This project is licensed under the [MIT License](https://github.com/bindu2607/personal-finance-tracker/blob/main/LICENSE).  
-
-See the LICENSE file for full details.
+This project is licensed under the [MIT License](LICENSE).
 
 
+## Acknowledgements
 
-## 🙏 Acknowledgements
-Thank you to all the open-source contributors and resources that made this project possible.
+- [Feather Icons](https://feathericons.com/) - Icons used in the application
+- [Font Awesome](https://fontawesome.com/) - Icons used in the application
 
-## 📬 Contact
-For questions or support, please contact:
+## Contact
 
-Marpini Himabindu - himabindumarpini@gmail.com 
+For any inquiries or questions, please contact [email protected]
 
-Or open an issue on GitHub.
-
-
+Enjoy managing your finances with Personal Finance Tracker!
