@@ -98,5 +98,6 @@ Thank you to all the open-source contributors and resources that made this proje
 For questions or support, please contact:
 
 Email: himabindumarpini92@gmail.com
+
 GitHub Issues: Open here
 
