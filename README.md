@@ -1,3 +1,4 @@
+
 # Personal Finance Tracker
 
 A modern web app to track income, expenses, budgets, and financial goals with interactive charts and a clean, responsive UI. Easily manage your personal finances and gain insights into your spending.
@@ -29,6 +30,9 @@ https://personal-finance-tracker-marpini-himabindus-projects.vercel.app/
 - ✅ **Set Financial Goals**  
   Define your saving goals and monitor progress with visual indicators.
 
+- ✅ **Persistent Data Storage**  
+  Implemented persistent client-side data storage with **LocalStorage** to securely track income, expenses, and budgets even after browser reloads or sessions end.
+
 - ✅ **Responsive UI**  
   Optimized for all devices with smooth interactions and accessibility in mind.
 
@@ -43,26 +47,20 @@ https://personal-finance-tracker-marpini-himabindus-projects.vercel.app/
 
 ---
 
-2. Open the App
-Simply open index.html in your preferred browser.
-
+2. Open the App  
+Simply open `index.html` in your preferred browser.  
 ⚠️ No server or backend setup required for demo use.
 
 ---
 
 ## 🧰 Technologies Utilized
 
-HTML5 — Structured with semantic, accessible markup for enhanced SEO and readability.
-
-CSS3 — Modern styling with custom components and Bootstrap-inspired utility classes, including advanced UI effects like Glassmorphism.
-
-JavaScript (ES6+) — Efficient DOM manipulation, event handling, and client-side data operations using modern syntax and features.
-
-LocalStorage — Enables persistent browser-based data storage for a seamless user experience.
-
-Feather Icons & Font Awesome — Lightweight and visually appealing icon sets for intuitive UI elements.
-
-Responsive Design — Mobile-first, fully responsive layout using media queries and flexible grid structures.
+- **HTML5** — Structured with semantic, accessible markup for enhanced SEO and readability.  
+- **CSS3** — Modern styling with custom components and Bootstrap-inspired utility classes, including advanced UI effects like Glassmorphism.  
+- **JavaScript (ES6+)** — Efficient DOM manipulation, event handling, and client-side data operations using modern syntax and features.  
+- **LocalStorage** — Enables persistent browser-based data storage for a seamless user experience.  
+- **Feather Icons & Font Awesome** — Lightweight and visually appealing icon sets for intuitive UI elements.  
+- **Responsive Design** — Mobile-first, fully responsive layout using media queries and flexible grid structures.
 
 ---
 
@@ -70,9 +68,8 @@ Responsive Design — Mobile-first, fully responsive layout using media queries 
 
 Contributions are welcome! If you have suggestions, bug reports, or feature requests, please:
 
-Open an issue
-
-Or submit a pull request
+- Open an issue  
+- Or submit a pull request  
 
 Please ensure your code follows the existing style guidelines and is well-documented.
 
@@ -80,10 +77,8 @@ Please ensure your code follows the existing style guidelines and is well-docume
 
 ## 📄 License
 
-This project is licensed under the [MIT License](https://github.com/bindu2607/personal-finance-tracker/blob/main/LICENSE).
-
+This project is licensed under the [MIT License](https://github.com/bindu2607/personal-finance-tracker/blob/main/LICENSE).  
 See the LICENSE file for full details.
-
 
 ---
 
@@ -97,7 +92,5 @@ Thank you to all the open-source contributors and resources that made this proje
 
 For questions or support, please contact:
 
-Email: himabindumarpini92@gmail.com
-
-GitHub Issues: Open here
-
+- Email: himabindumarpini92@gmail.com  
+- GitHub Issues: Open here
